@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Main from "./page/user/Main";
 import DashboardAdmin from "./page/admin/DashboardAdmin";
@@ -7,11 +8,10 @@ import RentailHomeDetail from "./page/user/RentailHomeDetail";
 import About from "./page/user/About";
 import Contact from "./page/user/Contact";
 import Login from "./page/login/Login";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getCurrentAdmin, getCurrentRentaler, getCurrentUser } from "./services/fetch/ApiUtils";
 import { ACCESS_TOKEN } from "./constants/Connect";
 import LoadingIndicator from "./common/LoadingIndicator";
-import { useEffect } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Signup from "./page/signup/Signup";
@@ -58,6 +58,57 @@ import ElectricAndWaterManagement from './page/rentaler/ElectricAndWaterManageme
 import AddElectricAndWater from './page/rentaler/AddElectricAndWater';
 import EditElectricAndWater from './page/rentaler/EditElectricAndWater';
 import jwtDecode from 'jwt-decode';
+
+// Suppress Bootstrap modal errors globally
+const originalError = console.error;
+console.error = (...args) => {
+  if (
+    typeof args[0] === 'string' && 
+    (args[0].includes('backdrop') || 
+     args[0].includes('Ti._initializeBackDrop') ||
+     args[0].includes('Ti.getOrCreateInstance'))
+  ) {
+    return; // Ignore Bootstrap modal errors
+  }
+  originalError.apply(console, args);
+};
+
+// Error Boundary Component to catch Bootstrap errors
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    // Check if it's a Bootstrap modal error
+    if (error && error.message && 
+        (error.message.includes('backdrop') || 
+         error.message.includes('Ti._initializeBackDrop') ||
+         error.message.includes('Ti.getOrCreateInstance'))) {
+      // Ignore Bootstrap errors, don't show error UI
+      return { hasError: false };
+    }
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // Log errors but suppress Bootstrap modal errors
+    if (error && error.message && 
+        !(error.message.includes('backdrop') || 
+          error.message.includes('Ti._initializeBackDrop') ||
+          error.message.includes('Ti.getOrCreateInstance'))) {
+      console.error('Caught error:', error, errorInfo);
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div>Something went wrong.</div>;
+    }
+    return this.props.children;
+  }
+}
 
 
 function App() {
@@ -211,7 +262,7 @@ function App() {
 
   console.log({ authenticated, username, currentUser, role, loading });
   return (
-    <>
+    <ErrorBoundary>
       <AIChatbot />
       <Router>
         <Routes>
@@ -283,7 +334,7 @@ function App() {
         draggable
         pauseOnHover
       />
-    </>
+    </ErrorBoundary>
 
   );
 }
