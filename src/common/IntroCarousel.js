@@ -31,10 +31,10 @@ class IntroCarosel extends Component {
                                                 <div className="col-lg-8">
                                                     <div className="intro-body">
                                                         <p className="intro-title-top">Phòng trọ tốt bạn muốn tìm kiếm
-                                                            <br /> 2024
+                                                            <br /> 2025
                                                         </p>
                                                         <h1 className="intro-title mb-4 ">
-                                                            <span className="color-b">Hà Nội </span> Một
+                                                            <span className="color-b">Việt Nam </span> Một
                                                             <br /> Nơi tuyệt vời
                                                         </h1>
                                                         <p className="intro-subtitle intro-price">
