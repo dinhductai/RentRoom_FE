@@ -4,6 +4,7 @@ import SidebarNav from './SidebarNav';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getContract, getRentOfHome, getRoom } from '../../services/fetch/ApiUtils';
+import { API_BASE_URL, ACCESS_TOKEN } from '../../constants/Connect';
 import ContractService from '../../services/axios/ContractService';
 
 
@@ -66,6 +67,37 @@ function EditContract(props) {
             });
 
         console.log(contractData);
+    };
+
+    const handleViewFile = async (fileUrl) => {
+        if (!fileUrl) {
+            toast.error('File không tồn tại!');
+            return;
+        }
+        
+        try {
+            const fullUrl = `${API_BASE_URL}/${fileUrl}`;
+            const response = await fetch(fullUrl);
+            
+            if (!response.ok) {
+                toast.error('Không thể tải file!');
+                return;
+            }
+            
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileUrl.split('/').pop(); // Lấy tên file từ URL
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            toast.success('Tải file thành công!');
+        } catch (error) {
+            toast.error('Lỗi khi tải file!');
+            console.error(error);
+        }
     };
 
     useEffect(() => {
@@ -154,8 +186,8 @@ function EditContract(props) {
                                         <div className="mb-3">
                                             <label className="form-label">Tải File Hợp Đồng</label> <br />
                                             <h6 className="card-subtitle text-muted">Tải mẫu hợp đồng để tạo hợp đồng với người thuê và đẩy lên lưu trữ trên hệ thống. Sau đó chuyển sang file .pdf để upload.<a href='https://image.luatvietnam.vn/uploaded/Others/2021/04/08/hop-dong-thue-nha-o_2810144434_2011152916_0804150405.doc'>Tải Mẫu</a></h6>
-                                            <button type="button" class="btn btn-outline-success" style={{marginBottom: "10px"}}>
-                                                <a href={contractData.files} target="_blank">Xem Hợp Đồng</a>
+                                            <button type="button" class="btn btn-outline-success" style={{marginBottom: "10px"}} onClick={() => handleViewFile(contractData.files)}>
+                                                Xem Hợp Đồng
                                             </button>
                                             <input className="form-control" id="fileInput" type="file" accept=".pdf" name="files" multiple onChange={handleFileChange} />
                                         </div>

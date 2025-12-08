@@ -5,6 +5,7 @@ import {
   disableRoom,
   getAllContractOfRentaler,
 } from "../../services/fetch/ApiUtils";
+import { API_BASE_URL, ACCESS_TOKEN } from "../../constants/Connect";
 import Pagination from "./Pagnation";
 import { toast } from "react-toastify";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -18,6 +19,37 @@ function ContractManagement(props) {
   const [itemsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const handleViewFile = async (fileUrl) => {
+    if (!fileUrl) {
+      toast.error('File không tồn tại!');
+      return;
+    }
+    
+    try {
+      const fullUrl = `${API_BASE_URL}/${fileUrl}`;
+      const response = await fetch(fullUrl);
+      
+      if (!response.ok) {
+        toast.error('Không thể tải file!');
+        return;
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileUrl.split('/').pop(); // Lấy tên file từ URL
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      toast.success('Tải file thành công!');
+    } catch (error) {
+      toast.error('Lỗi khi tải file!');
+      console.error(error);
+    }
+  };
 
   // Fetch data from the API
 
@@ -266,21 +298,9 @@ function ContractManagement(props) {
                               <button
                                 type="button"
                                 class="btn btn-outline-success"
+                                onClick={() => handleViewFile(item.files)}
                               >
-                                <a
-                                  href={
-                                    item.files === null
-                                      ? ""
-                                      : `` +
-                                        item.files.replace(
-                                          "photographer/files/",
-                                          ""
-                                        )
-                                  }
-                                  target="_blank"
-                                >
-                                  Xem
-                                </a>
+                                Xem
                               </button>
                             </td>
                             <td>
