@@ -28,12 +28,22 @@ class RentailHomeDetail extends Component {
             description: "",
             title: "",
             nameOfRentaler: "",
+            hasError: false,
+            errorMessage: "",
         };
     }
 
     componentDidMount() {
         this.fetchRooms(); // Call the fetchRooms function when component mounts
         this.fetchComments();
+    }
+
+    componentDidCatch(error, errorInfo) {
+        console.error("Error caught by component:", error, errorInfo);
+        this.setState({
+            hasError: true,
+            errorMessage: "Đã có lỗi xảy ra khi hiển thị trang. Vui lòng thử lại.",
+        });
     }
 
     handleInputChange = (event) => {
@@ -68,12 +78,16 @@ class RentailHomeDetail extends Component {
 
             this.setState({
                 rooms: data,
+                toEmail: data.user?.email || "",
+                hasError: false,
+                errorMessage: "",
             });
-            this.setState({
-                toEmail: data.user?.email
-            })
         } catch (error) {
             console.error("Error fetching rooms:", error);
+            this.setState({
+                hasError: true,
+                errorMessage: "Không thể tải thông tin phòng trọ. Vui lòng thử lại sau.",
+            });
         }
     };
 
@@ -149,7 +163,33 @@ class RentailHomeDetail extends Component {
 
     render() {
 
-        const { rooms, comments, showCommentForm, content, rate, submittingComment } = this.state;
+        const { rooms, comments, showCommentForm, content, rate, submittingComment, hasError, errorMessage } = this.state;
+
+        // Nếu có lỗi, hiển thị thông báo lỗi với nút quay lại
+        if (hasError) {
+            return (
+                <>
+                    <Header authenticated={this.props.authenticated} currentUser={this.props.currentUser} onLogout={this.props.onLogout} />
+                    <main id="main">
+                        <section className="intro-single">
+                            <div className="container">
+                                <div className="row justify-content-center">
+                                    <div className="col-md-8 text-center">
+                                        <div className="alert alert-danger mt-5" role="alert">
+                                            <h4 className="alert-heading">Đã có lỗi xảy ra!</h4>
+                                            <p>{errorMessage}</p>
+                                            <hr />
+                                            <a href="/" className="btn btn-primary">Quay về trang chủ</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </main>
+                    <Footer />
+                </>
+            );
+        }
 
         return (
             <>
@@ -215,10 +255,10 @@ class RentailHomeDetail extends Component {
                                                         <span class="bi bi-cash"></span>
                                                     </div>
                                                     <div class="card-title-c align-self-center">
-                                                        <h5 class="title-c">{rooms ? rooms.price?.toLocaleString('vi-VN', {
+                                                        <h5 class="title-c">{rooms && rooms.price ? rooms.price.toLocaleString('vi-VN', {
                                                             style: 'currency',
                                                             currency: 'VND',
-                                                        }) : ""}</h5>
+                                                        }) : "Liên hệ"}</h5>
                                                     </div>
                                                 </div>
                                             </div>

@@ -20,6 +20,22 @@ function RoomManagement(props) {
     const [roomId, setRoomId] = useState(4);
     const [showModal, setShowModal] = useState(false);
 
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (showModal) {
+            document.body.style.overflow = 'hidden';
+            document.body.classList.add('modal-open');
+        } else {
+            document.body.style.overflow = '';
+            document.body.classList.remove('modal-open');
+        }
+        
+        return () => {
+            document.body.style.overflow = '';
+            document.body.classList.remove('modal-open');
+        };
+    }, [showModal]);
+
     // Fetch data from the API
     useEffect(() => {
         fetchData();
@@ -51,6 +67,11 @@ function RoomManagement(props) {
     const handleSetRoomId = (id) => {
         setRoomId(id);
         setShowModal(true);
+    }
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setRoomId(null);
     }
 
     const handleDisableRoom = (roomId) => {
@@ -129,7 +150,7 @@ function RoomManagement(props) {
                                                 <td>{item.price && item.price.toLocaleString('vi-VN', {
                                                     style: 'currency',
                                                     currency: 'VND',
-                                                })}</td>
+                                                }) || "Liên hệ"}</td>
                                                 <td style={{ color: "green" }}>{item.status === "ROOM_RENT" || item.status === "CHECKED_OUT" ? "Chưa thuê" : "Đã thuê"}</td>
                                                 <td style={{ color: "green" }}>{item.isLocked === "ENABLE" ? "Hiển" : "Ẩn"}</td>
                                                 <td style={{ color: "green" }}>{item.isApprove === false ? "Chưa duyệt" : "Đã duyệt"}</td>
@@ -149,7 +170,16 @@ function RoomManagement(props) {
                                                                     &nbsp;&nbsp;
 
                                                                     &nbsp;
-                                                                    <a onClick={() => handleSetRoomId(item.id)} data-bs-toggle="modal" data-bs-target=".bd-example-modal-lg" data-toggle="tooltip" data-placement="bottom" title="Xem chi tiết" >
+                                                                    <a 
+                                                                        href="#"
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault();
+                                                                            handleSetRoomId(item.id);
+                                                                        }} 
+                                                                        data-toggle="tooltip" 
+                                                                        data-placement="bottom" 
+                                                                        title="Xem chi tiết"
+                                                                    >
                                                                         <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216c-13.3 0-24-10.7-24-24s10.7-24 24-24h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24H216c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" /></svg> </a>
                                                                     &nbsp;&nbsp;
                                                                     <a href="#" onClick={() => handleDisableRoom(item.id)} data-toggle="tooltip" data-placement="bottom" title="Ẩn phòng"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash align-middle"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></a>
@@ -174,22 +204,55 @@ function RoomManagement(props) {
                             </div>
                         </div>
                     </div>
-                    <div className="modal fade bd-example-modal-lg" tabIndex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-xl">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Chi tiết bài đăng tin</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body overflow-auto">
-                                    {showModal && <ModalRoomDetails roomId={roomId} />}
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    
+                    {/* React-controlled Modal */}
+                    {showModal && (
+                        <>
+                            {/* Modal Backdrop */}
+                            <div 
+                                className="modal-backdrop fade show" 
+                                style={{ zIndex: 1040 }}
+                                onClick={handleCloseModal}
+                            ></div>
+                            
+                            {/* Modal Dialog */}
+                            <div 
+                                className="modal fade show d-block" 
+                                tabIndex="-1"
+                                role="dialog"
+                                style={{ zIndex: 1050 }}
+                            >
+                                <div 
+                                    className="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <div className="modal-content">
+                                        <div className="modal-header">
+                                            <h5 className="modal-title">Chi tiết bài đăng tin</h5>
+                                            <button 
+                                                type="button" 
+                                                className="btn-close" 
+                                                onClick={handleCloseModal}
+                                                aria-label="Close"
+                                            ></button>
+                                        </div>
+                                        <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                                            <ModalRoomDetails roomId={roomId} />
+                                        </div>
+                                        <div className="modal-footer">
+                                            <button 
+                                                type="button" 
+                                                className="btn btn-secondary" 
+                                                onClick={handleCloseModal}
+                                            >
+                                                Đóng
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </>
+                    )}
                 </div>
             </div >
         </>

@@ -19,6 +19,22 @@ function RoomManagement(props) {
     const [totalItems, setTotalItems] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (showModal) {
+            document.body.style.overflow = 'hidden';
+            document.body.classList.add('modal-open');
+        } else {
+            document.body.style.overflow = '';
+            document.body.classList.remove('modal-open');
+        }
+        
+        return () => {
+            document.body.style.overflow = '';
+            document.body.classList.remove('modal-open');
+        };
+    }, [showModal]);
+
     // Fetch data from the API
     useEffect(() => {
         fetchData();
@@ -42,6 +58,11 @@ function RoomManagement(props) {
     const handleSetRoomId = (id) => {
         setRoomId(id);
         setShowModal(true);
+    }
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setRoomId(null);
     }
 
     const handleSendEmail = (userId) => {
@@ -135,7 +156,7 @@ function RoomManagement(props) {
                                                 <td>{item.price && item.price.toLocaleString('vi-VN', {
                                                     style: 'currency',
                                                     currency: 'VND',
-                                                })}</td>
+                                                }) || "Liên hệ"}</td>
                                                 <td style={{ color: "green" }}>{item.status === "ROOM_RENT" || item.status === "CHECKED_OUT" ? "Chưa thuê" : "Đã thuê"}</td>
                                                 <td style={{ color: "green" }}>
                                                     <button type="button" class="btn btn-outline-success" onClick={() => handleIsApprove(item.id)}>
@@ -152,9 +173,11 @@ function RoomManagement(props) {
 
                                                     &nbsp;
                                                     <a
-                                                        onClick={() => handleSetRoomId(item.id)}
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target=".bd-example-modal-lg"
+                                                        href="#"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            handleSetRoomId(item.id);
+                                                        }}
                                                         data-toggle="tooltip"
                                                         data-placement="bottom"
                                                         title="Xem chi tiết"
@@ -176,22 +199,54 @@ function RoomManagement(props) {
                         </div>
                     </div>
 
-                    <div className="modal fade bd-example-modal-lg" tabIndex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-xl">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Chi tiết bài đăng tin</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body overflow-auto">
-                                    {showModal && <ModalRoomDetails roomId={roomId} />}
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    {/* React-controlled Modal */}
+                    {showModal && (
+                        <>
+                            {/* Modal Backdrop */}
+                            <div 
+                                className="modal-backdrop fade show" 
+                                style={{ zIndex: 1040 }}
+                                onClick={handleCloseModal}
+                            ></div>
+                            
+                            {/* Modal Dialog */}
+                            <div 
+                                className="modal fade show d-block" 
+                                tabIndex="-1"
+                                role="dialog"
+                                style={{ zIndex: 1050 }}
+                            >
+                                <div 
+                                    className="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <div className="modal-content">
+                                        <div className="modal-header">
+                                            <h5 className="modal-title">Chi tiết bài đăng tin</h5>
+                                            <button 
+                                                type="button" 
+                                                className="btn-close" 
+                                                onClick={handleCloseModal}
+                                                aria-label="Close"
+                                            ></button>
+                                        </div>
+                                        <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                                            <ModalRoomDetails roomId={roomId} />
+                                        </div>
+                                        <div className="modal-footer">
+                                            <button 
+                                                type="button" 
+                                                className="btn btn-secondary" 
+                                                onClick={handleCloseModal}
+                                            >
+                                                Đóng
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </>
+                    )}
                 </div>
             </div>
         </>

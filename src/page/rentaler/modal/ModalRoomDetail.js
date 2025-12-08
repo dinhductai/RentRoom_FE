@@ -116,10 +116,15 @@ const ModalRoomDetails = ({ roomId }) => {
                                                                 <span class="bi bi-cash"></span>
                                                             </div>
                                                             <div class="card-title-c align-self-center">
-                                                                <h5 class="title-c">{roomData?.price.toLocaleString('vi-VN', {
-                                                                    style: 'currency',
-                                                                    currency: 'VND',
-                                                                })}</h5>
+                                                                <h5 class="title-c">
+                                                                    {roomData && roomData.price 
+                                                                        ? roomData.price.toLocaleString('vi-VN', {
+                                                                            style: 'currency',
+                                                                            currency: 'VND',
+                                                                        })
+                                                                        : "Liên hệ"
+                                                                    }
+                                                                </h5>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -230,11 +235,11 @@ const ModalRoomDetails = ({ roomId }) => {
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6 col-lg-4">
-                                                    <img src={roomData.user.imageUrl} alt="" class="img-fluid" />
+                                                    <img src={roomData.user?.imageUrl || "../../assets/img/agent-1.jpg"} alt="" class="img-fluid" />
                                                 </div>
                                                 <div class="col-md-6 col-lg-4">
                                                     <div class="property-agent">
-                                                        <h4 class="title-agent">{roomData.user.name}</h4>
+                                                        <h4 class="title-agent">{roomData.user?.name || "Chưa có thông tin"}</h4>
                                                         <p class="color-text-a">
                                                             Phòng luôn chất lượng đảm bảo đúng sự thật và không các chi tiết khiến người dùng thất vọng
                                                             khi đến xem và kiểm tra phòng. An ninh tuyệt đối.
@@ -242,11 +247,11 @@ const ModalRoomDetails = ({ roomId }) => {
                                                         <ul class="list-unstyled">
                                                             <li class="d-flex justify-content-between">
                                                                 <strong>Điện thoại:</strong>
-                                                                <span class="color-text-a">{roomData.user.phone}</span>
+                                                                <span class="color-text-a">{roomData.user?.phone || "Chưa có thông tin"}</span>
                                                             </li>
                                                             <li class="d-flex justify-content-between">
                                                                 <strong>Email:</strong>
-                                                                <span class="color-text-a">{roomData.user.email}</span>
+                                                                <span class="color-text-a">{roomData.user?.email || "Chưa có thông tin"}</span>
                                                             </li>
                                                         </ul>
                                                     </div>

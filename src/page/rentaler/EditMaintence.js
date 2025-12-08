@@ -43,9 +43,14 @@ function EditMaintenance(props) {
         formData.append('maintenanceDate', contractData.maintenanceDate);
         formData.append('roomId', roomId);
         formData.append('price', contractData.price);
-        contractData.files && contractData.files.forEach((file, index) => {
-            formData.append(`files`, file);
-        });
+        
+        // Chỉ append files nếu nó là array và có phần tử
+        if (Array.isArray(contractData.files) && contractData.files.length > 0) {
+            contractData.files.forEach((file, index) => {
+                formData.append(`files`, file);
+            });
+        }
+        
         console.log(formData.getAll)
         MaintenanceService.editMaintenanceInfo(id, formData)
             .then(response => {
