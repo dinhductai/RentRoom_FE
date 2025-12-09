@@ -27,11 +27,14 @@ const Chats = () => {
 
         if (response.ok) {
           const data = await response.json();        
-          // console.log(data);
+          console.log("💬 Danh sách conversations:", data);
           setChats(data);
-          console.log("MESSAGE",chats)
+          
+          if (!data || data.length === 0) {
+            console.log("ℹ️ Chưa có cuộc trò chuyện nào. Hãy tìm kiếm người dùng để bắt đầu chat!");
+          }
         } else {
-          console.log("Error fetching chats:", response.statusText);
+          console.log("❌ Error fetching chats:", response.status, response.statusText);
         }
       } catch (error) {
         console.error("Error fetching chats:", error);
@@ -74,17 +77,24 @@ const Chats = () => {
 
   return (
     <>
-    {chats.map((chat) => (
-        <a href="#"  onClick={() => handleSelect(chat)} className="list-group-item list-group-item-action border-0" style={{ margin: "10px 10px 10px 15.2px", paddingLeft: "10px" }}>
+    {chats && chats.length > 0 ? (
+      chats.map((chat) => (
+        <a href="#" key={chat.id} onClick={() => handleSelect(chat)} className="list-group-item list-group-item-action border-0" style={{ margin: "10px 10px 10px 15.2px", paddingLeft: "10px" }}>
           <div className="d-flex align-items-start">
-            <img src={chat.imageUrl} className="rounded-circle me-1" alt="Vanessa Tucker" width="40" height="40" />
+            <img src={chat.imageUrl} className="rounded-circle me-1" alt={chat.userName} width="40" height="40" />
             <div className="flex-grow-1 ms-3">
               {chat.userName}
               <div className="small"><span className="fas fa-circle chat-online">{chat.message}</span></div>
             </div>
           </div>
         </a>
-      ))}
+      ))
+    ) : (
+      <div className="text-center text-muted p-4">
+        <p>Chưa có cuộc trò chuyện nào</p>
+        <small>Sử dụng ô tìm kiếm phía trên để tìm người dùng</small>
+      </div>
+    )}
     </>
   );
 };

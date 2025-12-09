@@ -54,9 +54,12 @@ const handleSubmit = (event) => {
             <div className="row">
               <div className="col-md-12 col-lg-8">
                 <div className="title-single-box">
-                  <h1 className="title-single">Liên hệ chúng tôi</h1>
+                  <h1 className="title-single">Liên hệ với ban quản trị</h1>
                   <span className="color-text-a">
-                    Nếu bạn có thắc mắc hãy liên tới chúng tôi. Chúng tôi sẽ sớm trả lời cho bạn.
+                    Gửi câu hỏi chung, góp ý, hoặc hỗ trợ đến ban quản trị website. 
+                    <br />
+                    <strong>Lưu ý:</strong> Đây không phải là liên hệ với chủ phòng trọ cụ thể. 
+                    Để liên hệ chủ trọ, vui lòng sử dụng form trong trang chi tiết phòng.
                   </span>
                 </div>
               </div>

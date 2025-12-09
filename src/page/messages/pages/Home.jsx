@@ -3,10 +3,13 @@ import Sidebar from '../components/Sidebar'
 import Chat from '../components/Chat'
 import '../style.css'
 import { UserProvider } from "../context/UserContext";
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
 const Home = (props) => {
   const [messages, setMessages] = React.useState([]);
+  const location = useLocation();
+  const navigationState = location.state;
+
   if (!props.authenticated) {
     return <Navigate
         to={{
@@ -15,7 +18,7 @@ const Home = (props) => {
         }} />;
 }
   return (
-    <UserProvider>
+    <UserProvider navigationState={navigationState}>
       <div className="mb-3">
         <h1 className="h3 d-inline align-middle">Tin nhắn</h1>
       </div>

@@ -3,7 +3,7 @@ import Header from "../../common/Header";
 import Footer from "../../common/Footer";
 import { toast } from "react-toastify";
 import Pagination from "./Pagnation";
-import { getAllAccountRentalerForCustomer } from "../../services/fetch/ApiUtils";
+import { getAllAccountRentalerForCustomer, followRentaler, unfollowRentaler } from "../../services/fetch/ApiUtils";
 import { Link } from "react-router-dom";
 
 const AgentsGird = (props) => {
@@ -12,6 +12,8 @@ const AgentsGird = (props) => {
     const [totalItems, setTotalItems] = useState(0);
     const [tableData, settableData] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [followingIds, setFollowingIds] = useState(new Set());
+    const [loadingFollow, setLoadingFollow] = useState({});
 
     useEffect(() => {
         fetchData();
@@ -30,6 +32,37 @@ const AgentsGird = (props) => {
 
     const paginate = (pageNumber) => {
         setCurrentPage(pageNumber);
+    };
+
+    const handleFollow = async (rentalerId) => {
+        if (!props.authenticated) {
+            toast.warning("Vui lòng đăng nhập để theo dõi!");
+            return;
+        }
+
+        setLoadingFollow(prev => ({ ...prev, [rentalerId]: true }));
+
+        try {
+            if (followingIds.has(rentalerId)) {
+                // Unfollow
+                await unfollowRentaler(rentalerId);
+                setFollowingIds(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(rentalerId);
+                    return newSet;
+                });
+                toast.success("Đã bỏ theo dõi!");
+            } else {
+                // Follow
+                await followRentaler(rentalerId);
+                setFollowingIds(prev => new Set(prev).add(rentalerId));
+                toast.success("Đã theo dõi!");
+            }
+        } catch (error) {
+            toast.error((error && error.message) || 'Có lỗi xảy ra!');
+        } finally {
+            setLoadingFollow(prev => ({ ...prev, [rentalerId]: false }));
+        }
     };
 
     return (
@@ -114,6 +147,23 @@ const AgentsGird = (props) => {
 
                                                             </ul>
                                                         </div>
+                                                        {props.authenticated && (
+                                                            <div className="text-center mt-2">
+                                                                <button
+                                                                    className={`btn btn-sm ${followingIds.has(rentaler.id) ? 'btn-secondary' : 'btn-success'}`}
+                                                                    onClick={() => handleFollow(rentaler.id)}
+                                                                    disabled={loadingFollow[rentaler.id]}
+                                                                    style={{ minWidth: '100px' }}
+                                                                >
+                                                                    {loadingFollow[rentaler.id] ? (
+                                                                        <span className="spinner-border spinner-border-sm me-1"></span>
+                                                                    ) : (
+                                                                        <i className={`bi ${followingIds.has(rentaler.id) ? 'bi-heart-fill' : 'bi-heart'} me-1`}></i>
+                                                                    )}
+                                                                    {followingIds.has(rentaler.id) ? 'Đang theo dõi' : 'Theo dõi'}
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>

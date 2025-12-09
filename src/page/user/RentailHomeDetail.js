@@ -12,6 +12,7 @@ import 'semantic-ui-css/semantic.min.css'
 import Map from "../rentaler/map/MyMapComponent";
 import { saveBlog, sendEmailForContact } from "../../services/fetch/ApiUtils";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 class RentailHomeDetail extends Component {
 
@@ -445,8 +446,21 @@ class RentailHomeDetail extends Component {
                                                             </div>
                                                         </div>
                                                         <div className="col-md-12 mt-3">
-                                                            <button type="submit" className="btn btn-a">
-                                                                Gửi tin nhắn
+                                                            <button type="submit" className="btn btn-success me-2">
+                                                                ✉️ Gửi email liên hệ
+                                                            </button>
+                                                            <button 
+                                                                type="button" 
+                                                                className="btn btn-success"
+                                                                onClick={() => this.props.navigate('/message', { 
+                                                                    state: { 
+                                                                        ownerId: rooms?.user?.id,
+                                                                        ownerName: rooms?.user?.name,
+                                                                        roomTitle: rooms?.title 
+                                                                    }
+                                                                })}
+                                                            >
+                                                                💬 Chat với chủ trọ
                                                             </button>
                                                         </div>
                                                     </div>
@@ -545,4 +559,10 @@ class RentailHomeDetail extends Component {
     }
 }
 
-export default RentailHomeDetail;
+// Wrap with function component to use useNavigate hook
+function RentailHomeDetailWrapper(props) {
+    const navigate = useNavigate();
+    return <RentailHomeDetail {...props} navigate={navigate} />;
+}
+
+export default RentailHomeDetailWrapper;

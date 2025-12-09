@@ -563,3 +563,38 @@ export function deleteMaintenance(id) {
         method: 'DELETE'
     });
 }
+
+// ==================== FOLLOW API ====================
+export function followRentaler(rentalerId) {
+    if(!localStorage.getItem(ACCESS_TOKEN)) {
+        return Promise.reject("No access token set.");
+    }
+
+    return request({
+        url: API_BASE_URL + "/follow",
+        method: 'POST',
+        body: JSON.stringify({ rentalerId: rentalerId })
+    });
+}
+
+export function unfollowRentaler(rentalerId) {
+    if(!localStorage.getItem(ACCESS_TOKEN)) {
+        return Promise.reject("No access token set.");
+    }
+
+    return request({
+        url: API_BASE_URL + "/follow/" + rentalerId,
+        method: 'DELETE'
+    });
+}
+
+export function getFollowList(pageNo, pageSize) {
+    if(!localStorage.getItem(ACCESS_TOKEN)) {
+        return Promise.reject("No access token set.");
+    }
+
+    return request({
+        url: API_BASE_URL + "/follow?pageNo=" + pageNo + "&pageSize=" + pageSize,
+        method: 'GET'
+    });
+}
