@@ -16,7 +16,7 @@ function AddRoom(props) {
         latitude: 0.0,
         longitude: 0.0,
         address: '',
-        locationId: 0,
+        locationId: '',
         categoryId: 0,
         assets: [
             { name: '', number: '' }
@@ -109,7 +109,7 @@ function AddRoom(props) {
                     latitude: 0.0,
                     longitude: 0.0,
                     address: '',
-                    locationId: 0,
+                    locationId: '',
                     categoryId: 0,
                     assets: [
                         { name: '', number: '' }
@@ -183,10 +183,8 @@ function AddRoom(props) {
                                     <div className="row">
                                         <div className="mb-3 col-md-6">
                                             <label className="form-label" htmlFor="locationId">Khu vực</label>
-                                            <select className="form-select" id="locationId" name="locationId" value={roomData.locationId} onChange={handleInputChange}>
-                                                <option value={0}>Chọn...</option>
-                                                <option value={1}>Hà Nội</option>
                                             </select>
+                                            <input type="text" className="form-control" id="locationId" name="locationId" placeholder="Nhập khu vực (VD: Hà Nội, TP.HCM, Đà Nẵng...)" value={roomData.locationId} onChange={handleInputChange} />
                                         </div>
                                         <div className="mb-3 col-md-6">
                                             <label className="form-label" htmlFor="address">Địa Chỉ</label>

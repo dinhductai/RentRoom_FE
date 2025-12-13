@@ -191,10 +191,7 @@ function EditRoom(props) {
                                     <div className="row">
                                         <div className="mb-3 col-md-6">
                                             <label className="form-label" htmlFor="locationId">Khu vực</label>
-                                            <select className="form-select" id="locationId" name="locationId" value={roomData.locationId} onChange={handleInputChange}>
-                                                <option value={0}>Chọn...</option>
-                                                <option value={1}>Hà Nội</option>
-                                            </select>
+                                            <input type="text" className="form-control" id="locationId" name="locationId" placeholder="Nhập khu vực (VD: Hà Nội, TP.HCM, Đà Nẵng...)" value={roomData.locationId} onChange={handleInputChange} />
                                         </div>
                                         <div className="mb-3 col-md-6">
                                             <label className="form-label" htmlFor="address">Địa Chỉ</label>
