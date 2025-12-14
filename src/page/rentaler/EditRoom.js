@@ -191,7 +191,39 @@ function EditRoom(props) {
                                     <div className="row">
                                         <div className="mb-3 col-md-6">
                                             <label className="form-label" htmlFor="locationId">Khu vực</label>
-                                            <input type="text" className="form-control" id="locationId" name="locationId" placeholder="Nhập khu vực (VD: Hà Nội, TP.HCM, Đà Nẵng...)" value={roomData.locationId} onChange={handleInputChange} />
+                                            <select className="form-select" id="locationId" name="locationId" value={roomData.locationId} onChange={handleInputChange}>
+                                                <option value={0}>Chọn tỉnh/thành phố...</option>
+                                                <option value={1}>Hà Nội</option>
+                                                <option value={2}>TP. Hồ Chí Minh</option>
+                                                <option value={3}>Đà Nẵng</option>
+                                                <option value={4}>Hải Phòng</option>
+                                                <option value={5}>Cần Thơ</option>
+                                                <option value={6}>Huế</option>
+                                                <option value={7}>Nha Trang</option>
+                                                <option value={8}>Vũng Tàu</option>
+                                                <option value={9}>Đà Lạt</option>
+                                                <option value={10}>Biên Hòa</option>
+                                                <option value={11}>Thủ Dầu Một</option>
+                                                <option value={12}>Hải Dương</option>
+                                                <option value={13}>Hưng Yên</option>
+                                                <option value={14}>Bắc Ninh</option>
+                                                <option value={15}>Nam Định</option>
+                                                <option value={16}>Thái Nguyên</option>
+                                                <option value={17}>Hạ Long</option>
+                                                <option value={18}>Vinh</option>
+                                                <option value={19}>Thanh Hóa</option>
+                                                <option value={20}>Quy Nhơn</option>
+                                                <option value={21}>Buôn Ma Thuột</option>
+                                                <option value={22}>Pleiku</option>
+                                                <option value={23}>Phan Thiết</option>
+                                                <option value={24}>Long Xuyên</option>
+                                                <option value={25}>Mỹ Tho</option>
+                                                <option value={26}>Rạch Giá</option>
+                                                <option value={27}>Cà Mau</option>
+                                                <option value={28}>Bến Tre</option>
+                                                <option value={29}>Vĩnh Long</option>
+                                                <option value={30}>Sóc Trăng</option>
+                                            </select>
                                         </div>
                                         <div className="mb-3 col-md-6">
                                             <label className="form-label" htmlFor="address">Địa Chỉ</label>
