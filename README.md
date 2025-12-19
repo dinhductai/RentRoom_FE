@@ -1,70 +1,263 @@
-# Getting Started with Create React App
+# Rent Manager App (Frontend)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React (Create React App) frontend for a rental management platform with **three isolated roles**:
 
-## Available Scripts
+- **User** (tenant/customer)
+- **Rentaler** (property owner/landlord)
+- **Admin**
 
-In the project directory, you can run:
+The frontend talks to a backend API (default: `http://localhost:8080`) and includes:
 
-### `npm start`
+- Role-based dashboards & CRUD flows
+- Authentication with JWT + OAuth2 redirect
+- Realtime-like messaging UI (REST-backed)
+- An in-app **AI Assistant** chatbot
+- Analytics dashboards with charts
+- Google Maps + Places autocomplete for address selection
+- Excel export for bills/checkout documents
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 1) Tech Stack
 
-### `npm test`
+**Core**
+- React 18, Create React App (`react-scripts`)
+- React Router v6
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**HTTP / Auth**
+- `fetch` wrapper with JWT injection: `src/services/fetch/ApiUtils.js`
+- `axios` services for uploads / `multipart/form-data`: `src/services/axios/*`
+- JWT parsing: `jwt-decode`
 
-### `npm run build`
+**UI & UX**
+- Bootstrap 5 + vendor assets under `public/assets` and `src/assets`
+- Ant Design (`antd`)
+- Material UI (`@mui/material`) + Emotion
+- Notifications: `react-toastify` (backend messages are commonly Vietnamese)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**Charts / Analytics**
+- `chart.js` + `react-chartjs-2`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**Maps**
+- `react-google-maps` (map rendering)
+- `react-google-autocomplete` (Places predictions)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**Exports**
+- `xlsx` (Excel generation and download)
 
-### `npm run eject`
+**Firebase (present in repo)**
+- `firebase` config exists in `src/page/messages/firebase.js`.
+	- Note: the current chat UI components primarily use backend REST endpoints (see “Messaging” below). Firebase context files appear partially wired.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 2) Product Overview & Roles
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### User (tenant)
+Main routes live at `/…` (see `src/App.js`). Typical capabilities include:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- Browse room listings and view room detail pages
+- Manage profile, change password
+- Send rental requests / view request status
+- Follow agents / save blogs (feature pages exist)
+- Messaging with owners (chat module)
+- AI Assistant chatbot (floating widget)
 
-## Learn More
+### Rentaler (owner)
+All rentaler routes are under `/rentaler/...`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Room management (add/edit/list)
+- Contract management (create/edit/list)
+- Maintenance management (add/edit/list)
+- Utilities management (electric/water)
+- Export invoices / checkout documents to Excel
+- Dashboard analytics (revenue, occupancy, costs) with charts
+- Messaging UI (shared message module)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Admin
+All admin routes are under `/admin/...`.
 
-### Code Splitting
+- Approve/remove room posts
+- Account management / authorization pages
+- Send email to users from admin flows
+- Dashboard KPIs + moderation table (pagination)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## 3) Key Features (What the FE Implements)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 3.1 Authentication & Role Routing
 
-### Making a Progressive Web App
+- Access token is stored in LocalStorage under key `accessToken`.
+- On app startup, the token is decoded to detect role and load the correct “current user” endpoint:
+	- `GET /user/me`
+	- `GET /rentaler/me`
+	- `GET /admin/me`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+This logic is implemented in `src/App.js` and `src/services/fetch/ApiUtils.js`.
 
-### Advanced Configuration
+**OAuth2 redirect** route exists at:
+- `/oauth2/redirect` handled by `src/oauth2/OAuth2RedirectHandler.js`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### 3.2 CRUD Modules
 
-### Deployment
+This frontend is organized around CRUD pages per role under `src/page/{user|rentaler|admin}/`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Examples:
 
-### `npm run build` fails to minify
+- Rentaler:
+	- Rooms: `src/page/rentaler/AddRoom.js`, `EditRoom.js`, `RoomManagement.js`
+	- Contracts: `src/page/rentaler/AddContract.js`, `EditContract.js`, `ContractManagement.js`
+	- Maintenance: `src/page/rentaler/AddMaintence.js`, `EditMaintence.js`, `MaintenceManagement.js`
+	- Utilities: `src/page/rentaler/AddElectricAndWater.js`, `EditElectricAndWater.js`, `ElectricAndWaterManagement.js`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Admin:
+	- Dashboard/moderation: `src/page/admin/DashboardAdmin.js`
+	- Room management, accounts, authorization: `src/page/admin/*`
+
+### 3.3 Messaging (Chat)
+
+The chat UI is shared and embedded in both:
+
+- User: `/message` → `src/page/user/ChatOfUser.js`
+- Rentaler: `/rentaler/chat` → `src/page/rentaler/Chat.js`
+
+**Important implementation detail:**
+- The current message components under `src/page/messages/*` primarily call backend REST endpoints:
+	- `GET /user/message-chat/{otherUserId}`
+	- `POST /user/message-chat/{otherUserId}`
+	- Auto-select conversation support uses navigation state `ownerId` (see `src/page/messages/context/UserContext.js`).
+
+### 3.4 AI Assistant Chatbot
+
+A floating AI assistant widget is mounted globally in `src/App.js`:
+
+- Component: `src/components/AIChatbot/AIChatbot.js`
+- Calls backend endpoint:
+	- `POST /api/ai/chat` with JSON body `{ message: string }`
+	- Adds `Authorization: Bearer <token>` if the user is logged in
+
+This means the “AI model/provider” is implemented server-side; the FE only renders the chat UI and calls the endpoint.
+
+### 3.5 Analytics Dashboards (Charts)
+
+Rentaler dashboard includes KPI cards and chart visualizations:
+
+- Dashboard: `src/page/rentaler/DashboardRentaler.js`
+- Charts: `src/page/rentaler/chart/*` using `react-chartjs-2` (Bar/Pie)
+- Data is fetched via endpoints like `getByMonth()` and rendered as:
+	- Room revenue by month (Bar chart)
+	- Cost breakdown (water/electric/internet) (multi-series Bar chart)
+
+Admin also has chart components under `src/page/admin/chart/*` (simple Bar/Pie wrappers).
+
+### 3.6 Maps & Address Autocomplete
+
+Maps and Places search appear under role-specific folders:
+
+- Map rendering: `src/page/*/map/MyMapComponent.js` (uses `react-google-maps`)
+- Places autocomplete: `src/page/*/map/StandaloneSearchBox.js` (uses `react-google-autocomplete`)
+
+Used to help users select/preview addresses and retrieve latitude/longitude.
+
+### 3.7 Excel Export
+
+Excel export is implemented using `xlsx`:
+
+- Export invoice/bill: `src/page/rentaler/ExportBillRequier.js`
+- Export checkout/contract: `src/page/rentaler/ExportCheckoutRoom.js`
+
+The pages generate a workbook client-side and trigger a download.
+
+---
+
+## 4) Project Structure
+
+High-level layout:
+
+```
+src/
+	App.js                         # main router + role detection + global widgets (AIChatbot)
+	constants/Connect.js            # API_BASE_URL, OAuth redirect constants
+	services/
+		fetch/ApiUtils.js             # JSON fetch wrapper + most REST calls
+		axios/                        # multipart uploads + specific services
+	page/
+		user/                         # user pages
+		rentaler/                     # rentaler pages
+		admin/                        # admin pages
+		messages/                     # chat UI module
+	common/                         # shared Header/Footer/NotFound/etc.
+```
+
+---
+
+## 5) Configuration
+
+### Backend API base URL
+Edit `src/constants/Connect.js`:
+
+- `API_BASE_URL` (default `http://localhost:8080`)
+- `OAUTH2_REDIRECT_URI` (default `http://localhost:3000/oauth2/redirect`)
+
+### Keys (Google Maps / Firebase)
+
+This repo currently contains client keys inside source files (e.g., Maps and Firebase config).
+
+- Recommended: move keys to environment variables (CRA `REACT_APP_*`) and rotate exposed keys.
+- Do not commit production secrets into the frontend repository.
+
+---
+
+## 6) Local Development
+
+### Prerequisites
+
+- Node.js 16+ (Node 18 recommended)
+- npm 8+
+- Backend API running at `http://localhost:8080`
+
+### Install & Run
+
+```bash
+npm install
+npm start
+```
+
+App runs at `http://localhost:3000`.
+
+### Tests & Build
+
+```bash
+npm test
+npm run build
+```
+
+---
+
+## 7) Useful Routes (Quick Links)
+
+Authentication:
+- `/login` (User)
+- `/login-rentaler`
+- `/login-admin`
+- `/signup` (User)
+- `/signup-rentaler`
+- `/oauth2/redirect`
+
+Dashboards:
+- `/` (User landing)
+- `/rentaler` (Rentaler dashboard)
+- `/admin` (Admin dashboard)
+
+Chat:
+- `/message` (User)
+- `/rentaler/chat` (Rentaler)
+
+---
+
+## 8) Notes / Known Implementation Quirks
+
+- Routing is React Router v6 (`Routes` + `element`). There is a legacy `src/common/PrivateRoute.js` (v5 style) that is not the primary mechanism.
+- `src/App.js` includes a global suppression for noisy Bootstrap modal console errors; remove only if you are explicitly fixing the underlying modal lifecycle issues.
+
